@@ -1,12 +1,15 @@
 <?php
 
+$allowedOrigin = "https://bunchin-project.onrender.com"; // Exemplo: "https://www.meusite.com"
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: *");
-header("Access-Control-Allow-Methods: *");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Max-Age: 86400");
+
+// Configuração do CORS
+header("Access-Control-Allow-Origin: " . $allowedOrigin);
+header("Access-Control-Allow-Headers: Content-Type, Authorization"); // Apenas cabeçalhos necessários
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE"); // Apenas métodos usados
+header("Access-Control-Allow-Credentials: true"); // Mantém suporte a credenciais
+header("Access-Control-Max-Age: 86400"); // Cache de preflight por 24 horas
 
 include 'DbConnect.php';
 $objDb = new DbConnect;
