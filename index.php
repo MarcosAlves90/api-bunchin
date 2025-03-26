@@ -262,23 +262,28 @@ switch($path[2]) {
         }
         break;
     case "login":
-            $user = json_decode(file_get_contents('php://input'));
-            error_log("Login attempt: " . json_encode($user)); // Log the login attempt
+        $user = json_decode(file_get_contents('php://input'));
+        error_log("Login attempt: " . json_encode($user)); // Loga a tentativa de login
     
-            $sql = "SELECT * FROM tb_funcionario WHERE email = :email OR cpf = :cpf";
-            $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':email', $user->email);
-            $stmt->bindParam(':cpf', $user->email);
-            $stmt->execute();
-            $funcionario = $stmt->fetch(PDO::FETCH_ASSOC);
+        $sql = "SELECT * FROM tb_funcionario WHERE email = :email OR cpf = :cpf";
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':email', $user->email);
+        $stmt->bindParam(':cpf', $user->email);
+        $stmt->execute();
+        $funcionario = $stmt->fetch(PDO::FETCH_ASSOC);
     
-            if ($funcionario && password_verify($user->senha, $funcionario['senha'])) {
-                error_log("Login successful for user: " . $user->email); // Log success
+        if ($funcionario) {
+            if (password_verify($user->senha, $funcionario['senha'])) {
+                error_log("Login successful for user: " . $user->email); // Loga o sucesso
                 $response = ['status' => 1, 'message' => 'Login successful.', 'funcionario' => $funcionario];
             } else {
-                error_log("Login failed for user: " . $user->email); // Log failure
-                $response = ['status' => 0, 'message' => 'Email, CPF ou senha incorretos.'];
+                error_log("Login failed: Incorrect password for user: " . $user->email); // Loga senha incorreta
+                $response = ['status' => 0, 'message' => 'Senha incorreta.'];
             }
-            echo json_encode($response);
-            break;
+        } else {
+            error_log("Login failed: Email or CPF not found: " . $user->email); // Loga email/CPF incorreto
+            $response = ['status' => 0, 'message' => 'Email ou CPF incorretos.'];
+        }
+        echo json_encode($response);
+        break;
 }
