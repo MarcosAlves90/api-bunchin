@@ -262,18 +262,23 @@ switch($path[2]) {
         }
         break;
     case "login":
-        $user = json_decode(file_get_contents('php://input'));
-        $sql = "SELECT * FROM tb_funcionario WHERE email = :email OR cpf = :cpf";
-        $stmt = $conn->prepare($sql);
-        $stmt->bindParam(':email', $user->email);
-        $stmt->bindParam(':cpf', $user->email);
-        $stmt->execute();
-        $funcionario = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($funcionario && password_verify($user->senha, $funcionario['senha'])) {
-            $response = ['status' => 1, 'message' => 'Login successful.', 'funcionario' => $funcionario];
-        } else {
-            $response = ['status' => 0, 'message' => 'Email, CPF ou senha incorretos.'];
-        }
-        echo json_encode($response);
-        break;
+            $user = json_decode(file_get_contents('php://input'));
+            error_log("Login attempt: " . json_encode($user)); // Log the login attempt
+    
+            $sql = "SELECT * FROM tb_funcionario WHERE email = :email OR cpf = :cpf";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':email', $user->email);
+            $stmt->bindParam(':cpf', $user->email);
+            $stmt->execute();
+            $funcionario = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            if ($funcionario && password_verify($user->senha, $funcionario['senha'])) {
+                error_log("Login successful for user: " . $user->email); // Log success
+                $response = ['status' => 1, 'message' => 'Login successful.', 'funcionario' => $funcionario];
+            } else {
+                error_log("Login failed for user: " . $user->email); // Log failure
+                $response = ['status' => 0, 'message' => 'Email, CPF ou senha incorretos.'];
+            }
+            echo json_encode($response);
+            break;
 }
