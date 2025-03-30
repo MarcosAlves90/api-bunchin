@@ -261,29 +261,36 @@ switch($path[2]) {
                 break;
         }
         break;
+    // Endpoint para login
     case "login":
         $user = json_decode(file_get_contents('php://input'));
-        error_log("Login attempt: " . json_encode($user)); // Loga a tentativa de login
     
-        $sql = "SELECT * FROM tb_funcionario WHERE email = :email OR cpf = :cpf";
+        // Validação básica de entrada
+        if (empty($user->email) || empty($user->senha)) {
+            echo json_encode(['status' => 0, 'message' => 'Credenciais inválidas.']);
+            break;
+        }
+    
+        $sql = "SELECT n_registro, nome, email, senha FROM tb_funcionario WHERE email = :email OR cpf = :cpf";
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':email', $user->email);
         $stmt->bindParam(':cpf', $user->email);
         $stmt->execute();
         $funcionario = $stmt->fetch(PDO::FETCH_ASSOC);
     
-        if ($funcionario) {
-            if (password_verify($user->senha, $funcionario['senha'])) {
-                error_log("Login successful for user: " . $user->email); // Loga o sucesso
-                $response = ['status' => 1, 'message' => 'Login successful.', 'funcionario' => $funcionario];
-            } else {
-                error_log("Login failed: Incorrect password for user: " . $user->email); // Loga senha incorreta
-                $response = ['status' => 0, 'message' => 'Senha incorreta.'];
-            }
+        if ($funcionario && password_verify($user->senha, $funcionario['senha'])) {
+            // Log seguro (não expõe informações sensíveis)
+            error_log("Login realizado com sucesso para o ID do usuário: " . $funcionario['n_registro']);
+    
+            // Remover informações sensíveis antes de retornar
+            unset($funcionario['senha']);
+            $response = ['status' => 1, 'message' => 'Login realizado com sucesso.', 'funcionario' => $funcionario];
         } else {
-            error_log("Login failed: Email or CPF not found: " . $user->email); // Loga email/CPF incorreto
-            $response = ['status' => 0, 'message' => 'Email ou CPF incorretos.'];
+            // Mensagem genérica para evitar exposição de informações
+            error_log("Login failed: Invalid credentials.");
+            $response = ['status' => 0, 'message' => 'Credenciais inválidas.'];
         }
+    
         echo json_encode($response);
         break;
 }
