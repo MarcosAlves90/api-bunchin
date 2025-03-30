@@ -271,7 +271,7 @@ switch($path[2]) {
             break;
         }
     
-        $sql = "SELECT n_registro, nome, email, senha FROM tb_funcionario WHERE email = :email OR cpf = :cpf";
+        $sql = "SELECT * FROM tb_funcionario WHERE email = :email OR cpf = :cpf";
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':email', $user->email);
         $stmt->bindParam(':cpf', $user->email);
