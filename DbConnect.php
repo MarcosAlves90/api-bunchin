@@ -12,17 +12,15 @@ class DbConnect
 
     public function __construct()
     {
-        // Acessar as variáveis de ambiente para as credenciais do banco de dados
-        $this->server = getenv('DB_HOST');   // O host do banco de dados, como definido no Render
-        $this->dbname = getenv('DB_NAME');   // O nome do banco de dados
-        $this->user = getenv('DB_USER');     // O nome de usuário do banco de dados
-        $this->pass = getenv('DB_PASSWORD'); // A senha do banco de dados
+        $this->server = getenv('DB_HOST');
+        $this->dbname = getenv('DB_NAME');
+        $this->user = getenv('DB_USER');
+        $this->pass = getenv('DB_PASSWORD');
     }
 
     public function connect()
     {
         try {
-            // Conexão com PostgreSQL usando PDO
             $conn = new PDO('pgsql:host=' . $this->server . ';dbname=' . $this->dbname, $this->user, $this->pass);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             return $conn;
