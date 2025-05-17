@@ -1,8 +1,8 @@
-# Usar imagem PHP com Apache
-FROM php:7.4-apache
+# Usar imagem PHP mais recente com Apache
+FROM php:8.4-apache
 
-# Instalar a extensão para conectar ao PostgreSQL
-RUN apt-get update && apt-get install -y libpq-dev \
+# Instalar cliente PostgreSQL e extensões necessárias
+RUN apt-get update && apt-get install -y postgresql-client libpq-dev \
     && docker-php-ext-install pdo pdo_pgsql
 
 # Habilitar o mod_rewrite do Apache

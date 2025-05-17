@@ -21,16 +21,9 @@ class DbConnect
     public function connect()
     {
         try {
-            $endpoint = null;
-            if (strpos($this->server, '.') !== false) {
-                $endpoint = explode('.', $this->server)[0];
-            }
             $dsn = 'pgsql:host=' . $this->server .
                 ';dbname=' . $this->dbname .
                 ';sslmode=require';
-            if ($endpoint) {
-                $dsn .= ";options=--endpoint%3D$endpoint";
-            }
             $conn = new PDO($dsn, $this->user, $this->pass);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             return [
