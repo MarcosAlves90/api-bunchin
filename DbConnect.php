@@ -21,11 +21,36 @@ class DbConnect
     public function connect()
     {
         try {
-            $conn = new PDO('pgsql:host=' . $this->server . ';dbname=' . $this->dbname, $this->user, $this->pass);
+            $endpoint = null;
+            if (strpos($this->server, '.') !== false) {
+                $endpoint = explode('.', $this->server)[0];
+            }
+            $dsn = 'pgsql:host=' . $this->server .
+                ';dbname=' . $this->dbname .
+                ';sslmode=require';
+            if ($endpoint) {
+                $dsn .= ";options=--endpoint%3D$endpoint";
+            }
+            $conn = new PDO($dsn, $this->user, $this->pass);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            return $conn;
+            return [
+                'status' => 'success',
+                'connection' => $conn
+            ];
         } catch (\Exception $e) {
-            echo "Database Error: " . $e->getMessage();
+            $msg = $e->getMessage();
+            if (strpos($msg, 'Endpoint ID is not specified') !== false || strpos($msg, 'connection is insecure') !== false) {
+                return [
+                    'status' => 'error',
+                    'message' => 'Erro de conexão Neon: verifique se o endpoint está correto e se sslmode=require está configurado.',
+                    'details' => $msg
+                ];
+            }
+            return [
+                'status' => 'error',
+                'message' => 'Database Error',
+                'details' => $msg
+            ];
         }
     }
 }
