@@ -13,7 +13,14 @@ header("Access-Control-Max-Age: 86400"); // Cache de preflight por 24 horas
 
 include 'DbConnect.php';
 $objDb = new DbConnect;
-$conn = $objDb->connect();
+$result = $objDb->connect();
+if ($result['status'] === 'success') {
+    $conn = $result['connection'];
+} else {
+    http_response_code(500);
+    echo json_encode(['status' => 0, 'message' => $result['message'], 'details' => $result['details']]);
+    exit;
+}
 
 $method = $_SERVER['REQUEST_METHOD'];
 $path = explode('/', $_SERVER['REQUEST_URI']);
